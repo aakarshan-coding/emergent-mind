@@ -40,5 +40,5 @@ Can repeated social interaction and cooperation lead LLM agents to form internal
 
 - Environment task and observation structure: **TBD**
 - LLM backend(s) and how to control for model priors: **TBD**
-- Baselines that separate emergent behavior from capabilities the base model already has: **TBD**
+- Baselines that separate emergent behavior from capabilities the base model already has: see [baselines.md](baselines.md)
 - Statistical design (episodes per condition, seeds): **TBD**
