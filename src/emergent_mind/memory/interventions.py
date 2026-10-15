@@ -12,7 +12,7 @@ def delete_where(store: MemoryStore, predicate: Predicate) -> int:
     """Remove matching entries. Returns how many were removed."""
     kept = [e for e in store.entries() if not predicate(e)]
     removed = len(store) - len(kept)
-    store._entries = kept
+    store.overwrite(kept)
     return removed
 
 
@@ -25,5 +25,5 @@ def rewrite_where(store: MemoryStore, predicate: Predicate, content: str) -> int
             e = replace(e, content=content)
             changed += 1
         entries.append(e)
-    store._entries = entries
+    store.overwrite(entries)
     return changed

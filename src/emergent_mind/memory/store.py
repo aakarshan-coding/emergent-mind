@@ -21,6 +21,10 @@ class MemoryStore:
     def add(self, entry: MemoryEntry) -> None:
         self._entries.append(entry)
 
+    def overwrite(self, entries: Iterable[MemoryEntry]) -> None:
+        """Replace all entries. Reserved for experimental interventions."""
+        self._entries = list(entries)
+
     def entries(self) -> list[MemoryEntry]:
         return list(self._entries)
 
