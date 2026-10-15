@@ -1,7 +1,9 @@
+import random
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
 
+from emergent_mind.comms.disruption import Disruption
 from emergent_mind.types import AgentId, Message
 
 
@@ -14,8 +16,15 @@ class ChannelConfig:
 class Channel:
     """Buffers messages for one step and delivers them under a communication budget."""
 
-    def __init__(self, config: ChannelConfig | None = None) -> None:
+    def __init__(
+        self,
+        config: ChannelConfig | None = None,
+        disruptions: Iterable[Disruption] = (),
+        rng: random.Random | None = None,
+    ) -> None:
         self.config = config or ChannelConfig()
+        self.disruptions = list(disruptions)
+        self.rng = rng or random.Random()
         self._pending: list[Message] = []
         self._sent_this_step: dict[AgentId, int] = defaultdict(int)
 
@@ -30,7 +39,16 @@ class Channel:
 
     def deliver(self, agents: Iterable[AgentId]) -> dict[AgentId, list[Message]]:
         """Return each agent's inbox and reset the channel for the next step."""
-        inboxes = {a: [m for m in self._pending if m.is_for(a)] for a in agents}
+        delivered = [m for m in map(self._disrupt, self._pending) if m is not None]
+        inboxes = {a: [m for m in delivered if m.is_for(a)] for a in agents}
         self._pending.clear()
         self._sent_this_step.clear()
         return inboxes
+
+    def _disrupt(self, message: Message) -> Message | None:
+        for disruption in self.disruptions:
+            result = disruption(message, self.rng)
+            if result is None:
+                return None
+            message = result
+        return message
